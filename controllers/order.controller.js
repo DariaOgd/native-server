@@ -1,6 +1,8 @@
 import Order from '../models/order.model.js';
-import Product from '../models/product.model.js'; // Add this line to import the Product model
+import Product from '../models/product.model.js';
 import crypto from 'crypto';
+
+const STATIC_USER_ID = '6623e6342c1f4f96950d98ce';
 
 const hashCardInfo = (cardInfo) => {
   const hash = crypto.createHash('sha256');
@@ -10,7 +12,7 @@ const hashCardInfo = (cardInfo) => {
 
 export const getOrder = async (req, res, next) => {
   try {
-    const order = await Order.findOne({ userId: req.userId }).populate('products.productId');
+    const order = await Order.findOne({ userId: STATIC_USER_ID }).populate('products.productId');
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
     }
@@ -22,12 +24,11 @@ export const getOrder = async (req, res, next) => {
 
 export const createOrder = async (req, res, next) => {
   try {
-    console.log('Received request to create order:', req.body); // Log request body
     const { products, totalAmount, address, city, zipCode, country, cardNumber, expiryDate, cvv } = req.body;
     const hashedCardInfo = hashCardInfo(cardNumber + expiryDate + cvv);
 
     const newOrder = new Order({
-      userId: req.userId,
+      userId: STATIC_USER_ID,
       products,
       totalAmount,
       cardInfo: hashedCardInfo,
@@ -44,10 +45,8 @@ export const createOrder = async (req, res, next) => {
       { $set: { bought: true } }
     );
 
-    console.log('Order created successfully:', savedOrder); // Log success
     res.status(201).json(savedOrder);
   } catch (err) {
-    console.error('Error creating order:', err); // Log error
     next(err);
   }
 };
@@ -90,12 +89,7 @@ export const deleteOrder = async (req, res, next) => {
 
 export const getUserOrders = async (req, res, next) => {
   try {
-    const userId = req.query.userId; // Get user ID from query parameters
-    if (!userId) {
-      return res.status(400).json({ message: "User ID is required" });
-    }
-
-    const orders = await Order.find({ userId }).populate('products.productId');
+    const orders = await Order.find({ userId: STATIC_USER_ID }).populate('products.productId');
     res.status(200).json(orders);
   } catch (err) {
     next(err);

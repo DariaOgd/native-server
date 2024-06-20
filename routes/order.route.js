@@ -1,13 +1,13 @@
+// routes/order.route.js
 import express from 'express';
 import { getOrder, createOrder, updateOrderStatus, deleteOrder, getUserOrders } from '../controllers/order.controller.js';
-import { verifyToken } from '../middleware/jwt.js';
 
 const router = express.Router();
 
-router.get('/', verifyToken, getOrder);
-router.post('/create', verifyToken, createOrder);
-router.post('/update-status', verifyToken, updateOrderStatus);
-router.post('/delete', verifyToken, deleteOrder);
-router.get('/user', getUserOrders); // Remove verifyToken if you want to skip authentication
+router.get('/', getOrder);
+router.post('/create', createOrder);
+router.post('/update-status', updateOrderStatus);
+router.post('/delete', deleteOrder);
+router.get('/user', getUserOrders); // Assuming you want to fetch user orders without authentication
 
 export default router;
